@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contoh Front-end - Uji Proxy</title>
+</head>
+<body>
+    <h1>Ambil Data dari Google API (melalui Proxy)</h1>
+    <p>Pastikan server proxy Anda (localhost:3000) sedang berjalan di terminal lain.</p>
+    <button onclick="getDataFromGoogle()">Ambil Data Lokasi (Monumen Nasional)</button>
+    <h3>Hasil:</h3>
+    <pre id="result"></pre>
+
+    <script>
+        async function getDataFromGoogle() {
+            const resultElement = document.getElementById('result');
+            resultElement.textContent = 'Memuat data...'; // Menampilkan pesan loading
+
+            try {
+                // Panggil server proxy Anda, BUKAN langsung Google API!
+                // Pastikan alamat ini sesuai dengan port server Node.js Anda
+                const response = await fetch('http://localhost:3000/api/google-service', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Kirim informasi yang dibutuhkan server proxy untuk memanggil Google API
+                    body: JSON.stringify({
+                        endpoint: 'maps/api/geocode/json', // Contoh: Google Maps Geocoding API
+                        params: { address: 'Monumen Nasional, Jakarta' } // Parameter untuk Google API
+                    })
+                });
+
+                // Periksa apakah respons dari server proxy berhasil (status code 2xx)
+                if (!response.ok) {
+                    // Jika ada masalah dari server proxy (misal: 500 Internal Server Error)
+                    const errorText = await response.text(); // Ambil teks error dari respons
+                    throw new Error(`Kesalahan dari server proxy: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json(); // Ambil data JSON dari respons
+                resultElement.textContent = JSON.stringify(data, null, 2); // Tampilkan data JSON yang diformat
+
+            } catch (error) {
+                console.error('Ada masalah saat mengambil data:', error);
+                resultElement.textContent = 'Gagal mengambil data. Cek console browser untuk detail: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
