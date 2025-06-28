@@ -1,39 +1,30 @@
-// api/index.js (Hyper-Simplified Test Function)
-
-// Ini adalah fungsi serverless paling dasar untuk Vercel.
-// Tidak ada Express, tidak ada dotenv, hanya fungsi langsung.
-// Kita akan menambahkan header CORS secara manual di sini juga,
-// sebagai lapisan pengaman jika vercel.json entah bagaimana gagal.
+// api/index.js (Hyper-Minimalist Function)
 
 module.exports = (req, res) => {
-  // Tambahkan header CORS
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5000');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-
   // Log permintaan masuk (ini seharusnya muncul di runtime logs Vercel!)
-  console.log('Fungsi serverless menerima permintaan!');
-  console.log('Metode:', req.method);
+  console.log('--- Minimal Serverless Function Invoked ---');
+  console.log('Method:', req.method);
   console.log('URL:', req.url);
+  console.log('Headers:', req.headers);
 
-  // Jika ini adalah permintaan preflight (OPTIONS), kirim respons 204
+  // Handle OPTIONS (preflight) request - (meskipun vercel.json akan menangani ini, ini sebagai backup)
   if (req.method === 'OPTIONS') {
+    // Karena vercel.json seharusnya mengembalikan 204, ini mungkin tidak terpanggil.
+    // Tapi kita tetap memasukkannya untuk robustness.
     return res.status(204).send();
   }
 
-  // Jika ini adalah permintaan POST (dari tombol Ambil Data)
-  if (req.method === 'POST' && req.url === '/api/google-service') {
-    // Kita tidak akan memanggil Google API di sini dulu
-    // Cukup kirim respons dummy untuk melihat apakah koneksi berhasil
+  // Handle POST request
+  if (req.method === 'POST' && req.url.startsWith('/api/google-service')) { // Gunakan startsWith untuk API path
     return res.status(200).json({
-      message: "Hello dari fungsi Vercel yang disederhanakan!",
-      status: "SUCCESS",
+      message: "Hello from minimalist Vercel function!",
+      status: "SUCCESS_MINIMAL",
       received_method: req.method,
-      received_url: req.url
+      received_url: req.url,
+      body: req.body // Mungkin kosong jika tanpa Express body-parser
     });
   }
 
-  // Untuk rute lain atau method yang tidak ditangani
-  res.status(404).json({ message: "Not Found" });
+  // Handle other methods/routes not expected
+  res.status(404).json({ message: "Not Found - Minimalist Function" });
 };
