@@ -1,41 +1,39 @@
-// api/index.js (sebelumnya server.js)
-require('dotenv').config();
-const express = require('express');
-const app = express();
-const port = 3000; // Hanya untuk referensi lokal
+// api/index.js (Hyper-Simplified Test Function)
 
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-console.log('Kunci API terbaca dari .env (5 karakter awal):', GOOGLE_API_KEY ? GOOGLE_API_KEY.substring(0, 5) : 'TIDAK TERBACA');
+// Ini adalah fungsi serverless paling dasar untuk Vercel.
+// Tidak ada Express, tidak ada dotenv, hanya fungsi langsung.
+// Kita akan menambahkan header CORS secara manual di sini juga,
+// sebagai lapisan pengaman jika vercel.json entah bagaimana gagal.
 
-app.use(express.json());
+module.exports = (req, res) => {
+  // Tambahkan header CORS
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5000');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-app.post('/api/google-service', async (req, res) => {
-    const { endpoint, params } = req.body;
+  // Log permintaan masuk (ini seharusnya muncul di runtime logs Vercel!)
+  console.log('Fungsi serverless menerima permintaan!');
+  console.log('Metode:', req.method);
+  console.log('URL:', req.url);
 
-    if (!GOOGLE_API_KEY) {
-        console.error('GOOGLE_API_KEY tidak ditemukan di variabel lingkungan.');
-        return res.status(500).json({ error: 'Kunci API Google tidak ditemukan di server.' });
-    }
+  // Jika ini adalah permintaan preflight (OPTIONS), kirim respons 204
+  if (req.method === 'OPTIONS') {
+    return res.status(204).send();
+  }
 
-    try {
-        const queryParams = new URLSearchParams(params).toString();
-        const googleApiUrl = `https://maps.googleapis.com/${endpoint}?key=${GOOGLE_API_KEY}&${queryParams}`;
+  // Jika ini adalah permintaan POST (dari tombol Ambil Data)
+  if (req.method === 'POST' && req.url === '/api/google-service') {
+    // Kita tidak akan memanggil Google API di sini dulu
+    // Cukup kirim respons dummy untuk melihat apakah koneksi berhasil
+    return res.status(200).json({
+      message: "Hello dari fungsi Vercel yang disederhanakan!",
+      status: "SUCCESS",
+      received_method: req.method,
+      received_url: req.url
+    });
+  }
 
-        console.log('--- Permintaan ke Google API ---');
-        console.log('URL yang akan dipanggil:', googleApiUrl);
-        console.log('Endpoint:', endpoint);
-        console.log('Parameter:', params);
-
-        const response = await fetch(googleApiUrl);
-        const data = await response.json();
-
-        console.log('Respons mentah dari Google:', data);
-
-        res.json(data);
-    } catch (error) {
-        console.error('Error saat memanggil Google API di server:', error);
-        res.status(500).json({ error: 'Gagal mengambil data dari Google API di server', details: error.message });
-    }
-});
-
-module.exports = app; // Penting untuk Vercel
+  // Untuk rute lain atau method yang tidak ditangani
+  res.status(404).json({ message: "Not Found" });
+};
