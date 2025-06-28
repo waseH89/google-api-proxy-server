@@ -1,14 +1,22 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // Pastikan ini diimpor
 const app = express();
 const port = 3000;
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-// Ini penting untuk melihat apakah kunci API terbaca
 console.log('Kunci API terbaca dari .env (5 karakter awal):', GOOGLE_API_KEY ? GOOGLE_API_KEY.substring(0, 5) : 'TIDAK TERBACA');
 
-app.use(cors());
+// --- MULAI PERUBAHAN DI SINI ---
+const corsOptions = {
+  origin: 'http://localhost:5000', // Izinkan hanya origin ini
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Izinkan method ini
+  credentials: true, // Izinkan kredensial (jika ada, meskipun tidak relevan di sini)
+  optionsSuccessStatus: 204 // Untuk preflight requests
+};
+app.use(cors(corsOptions)); // Gunakan konfigurasi CORS
+// --- AKHIR PERUBAHAN DI SINI ---
+
 app.use(express.json());
 
 app.post('/api/google-service', async (req, res) => {
@@ -16,18 +24,17 @@ app.post('/api/google-service', async (req, res) => {
 
     try {
         const queryParams = new URLSearchParams(params).toString();
-        // Ini sangat penting! Perhatikan URL yang dibuat
         const googleApiUrl = `https://maps.googleapis.com/${endpoint}?key=${GOOGLE_API_KEY}&${queryParams}`;
 
         console.log('--- Permintaan ke Google API ---');
-        console.log('URL yang akan dipanggil:', googleApiUrl); // <--- INI KRITIS!
+        console.log('URL yang akan dipanggil:', googleApiUrl);
         console.log('Endpoint:', endpoint);
         console.log('Parameter:', params);
 
         const response = await fetch(googleApiUrl);
         const data = await response.json();
 
-        console.log('Respons mentah dari Google:', data); // <--- JUGA KRITIS!
+        console.log('Respons mentah dari Google:', data);
 
         res.json(data);
     } catch (error) {

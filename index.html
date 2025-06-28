@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Ambil Data dari Google API (melalui Proxy)</h1>
-    <p>Pastikan server proxy Anda (localhost:3000) sedang berjalan di terminal lain.</p>
+    <p>Aplikasi ini memanggil Google API melalui server proxy yang telah di-deploy di Vercel.</p>
     <button onclick="getDataFromGoogle()">Ambil Data Lokasi (Monumen Nasional)</button>
     <h3>Hasil:</h3>
     <pre id="result"></pre>
@@ -18,9 +18,8 @@
             resultElement.textContent = 'Memuat data...'; // Menampilkan pesan loading
 
             try {
-                // Panggil server proxy Anda, BUKAN langsung Google API!
-                // Pastikan alamat ini sesuai dengan port server Node.js Anda
-                const response = await fetch('http://localhost:3000/api/google-service', {
+                // URL Vercel Anda yang telah diubah di sini:
+                const response = await fetch('https://google-api-proxy-server-35i4c3hxf-waseh89s-projects.vercel.app/api/google-service', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
