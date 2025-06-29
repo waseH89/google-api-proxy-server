@@ -1,51 +1,435 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contoh Front-end - Uji Proxy</title>
+    <title>Generator Prompt & Gambar AI by Waseh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        @keyframes border-flicker { 0% { border-color: rgba(0, 255, 255, 0.2); } 25% { border-color: rgba(0, 255, 255, 1); } 50% { border-color: rgba(0, 255, 255, 0.3); } 75% { border-color: rgba(0, 255, 255, 1); } 100% { border-color: rgba(0, 255, 255, 0.2); } }
+        .futuristic-loader-flicker { animation: flicker 1.5s infinite step-end; }
+        .futuristic-loader-scan { animation: scan 2s linear infinite; }
+        .futuristic-loader-border { animation: border-flicker 2s linear infinite; }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <h1>Ambil Data dari Google API (melalui Proxy)</h1>
-    <p>Aplikasi ini memanggil Google API melalui server proxy yang telah di-deploy di Vercel.</p>
-    <button onclick="getDataFromGoogle()">Ambil Data Lokasi (Monumen Nasional)</button>
-    <h3>Hasil:</h3>
-    <pre id="result"></pre>
+<body class="bg-slate-900 text-gray-200">
+
+    <div class="min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+        <header class="w-full max-w-6xl text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-500 pb-2">
+                Generator Prompt & Gambar AI by Waseh
+            </h1>
+            <p class="text-slate-400 text-lg">
+                Unggah gambar, dapatkan prompt, lalu ciptakan karya seni baru.
+            </p>
+        </header>
+
+        <main class="w-full max-w-6xl flex-grow grid lg:grid-cols-2 gap-8">
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 flex flex-col space-y-6 shadow-2xl shadow-cyan-500/5">
+                <div>
+                    <h2 class="text-2xl font-semibold text-white mb-2">1. Unggah Gambar Anda</h2>
+                    <div id="upload-box" class="w-full h-60 border-2 border-dashed border-slate-600 rounded-lg flex items-center justify-center transition-all duration-300 hover:border-cyan-400 hover:bg-slate-800 relative">
+                        <div id="upload-placeholder" class="text-center text-slate-500">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+                            <p>Seret atau klik untuk memilih file</p>
+                        </div>
+                        <img id="image-preview" src="" alt="Pratinjau Gambar" class="hidden max-h-full max-w-full object-contain rounded-md"/>
+                        <input type="file" id="image-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" aria-label="Unggah Gambar Utama" />
+                    </div>
+                </div>
+                <button id="generate-prompt-btn" disabled class="w-full mt-auto flex items-center justify-center gap-2 rounded-lg bg-gray-600 px-6 py-3 text-lg font-bold text-white shadow-lg transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:shadow-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 1.9-1.1-3-2 3-3-1.1-1.9 1.9-3 2 1.1 3-1.9 1.9 3 1.1 2 3 1.9-1.9 3-2-1.1-3 1.9-1.9-3-1.1Z"/></svg>
+                    <span id="generate-prompt-btn-text">Buat Prompt</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 flex flex-col space-y-4 shadow-2xl shadow-cyan-500/5">
+                <h2 class="text-2xl font-semibold text-white">2. Hasil AI</h2>
+                <div id="results-container" class="flex-grow bg-slate-900 rounded-lg p-4 flex flex-col justify-center relative overflow-y-auto min-h-[500px]">
+                    <div id="results-placeholder" class="m-auto text-center text-slate-500">
+                        <p>Hasil prompt dan gambar akan muncul di sini.</p>
+                    </div>
+                    <div id="results-content" class="hidden h-full flex flex-col">
+                        <div>
+                            <div>
+                                <label class="text-sm font-semibold text-cyan-400 mb-1 block">Prompt (Bisa Diedit)</label>
+                                <textarea id="indonesian-prompt" class="w-full p-2 bg-slate-800/50 border border-slate-700 rounded-md text-slate-300 focus:ring-2 focus:ring-cyan-400 focus:outline-none transition" rows="4"></textarea>
+                                <div id="find-replace-id-container"></div>
+                                <p id="check-success-text" class="text-xs text-green-400 mt-1 h-4"></p>
+                                <div class="flex gap-2 mt-2">
+                                    <button id="check-fix-btn" class="flex-1 flex items-center justify-center gap-2 rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-amber-300 transition-colors hover:bg-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 8 10 8"/><path d="m9 12 2 2 4-4"/></svg>
+                                        Cek & Perbaiki
+                                    </button>
+                                    <button id="translate-btn" class="flex-1 flex items-center justify-center gap-2 rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-cyan-300 transition-colors hover:bg-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m18 18-3-3 2-4 2 4-3 3"/><path d="M22 12h-6"/></svg>
+                                        English
+                                    </button>
+                                </div>
+                                <button id="generate-image-id-btn" class="w-full mt-2 flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 text-sm font-bold text-white shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                    <span>Buat Gambar</span>
+                                </button>
+                            </div>
+                            <div id="aspect-ratio-container" class="mt-4"></div>
+                            <div id="english-prompt-container" class="hidden mt-4 border-t border-slate-700 pt-4">
+                                <label class="text-sm font-semibold text-green-400 mb-1 block">Prompt Bahasa Inggris (Bisa Diedit)</label>
+                                <textarea id="english-prompt" class="w-full p-2 bg-slate-800 border border-slate-700 rounded-md text-slate-300 focus:ring-2 focus:ring-green-400 focus:outline-none" rows="4"></textarea>
+                                <div id="find-replace-en-container"></div>
+                                <div class="flex gap-2 mt-2">
+                                    <button id="copy-btn" class="flex-1 flex items-center justify-center gap-2 rounded-md bg-slate-700 px-4 py-2 text-sm font-semibold text-green-300 transition-colors hover:bg-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                        <span id="copy-btn-text">Salin</span>
+                                    </button>
+                                    <button id="generate-image-en-btn" class="flex-1 flex items-center justify-center gap-2 rounded-md bg-gradient-to-r from-emerald-500 to-green-500 px-4 py-2 text-sm font-bold text-white shadow-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                        <span>Buat Gambar (EN)</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="generated-image-container" class="flex-grow flex items-center justify-center bg-black/20 rounded-lg min-h-[200px] mt-4 relative group">
+                             <div id="image-result-placeholder" class="text-slate-500 text-center"><p>Gambar yang dihasilkan akan muncul di sini.</p></div>
+                             <img id="generated-image" src="" alt="Gambar yang dihasilkan AI" class="hidden max-h-full max-w-full object-contain rounded-md cursor-pointer"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="preview-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div class="relative max-w-screen-lg max-h-screen-lg bg-slate-800 rounded-lg shadow-2xl flex flex-col md:flex-row" onclick="event.stopPropagation()">
+                <div class="flex-shrink-0 md:w-2/3 p-4">
+                  <img id="preview-image" src="" alt="Pratinjau Gambar AI" class="object-contain w-full h-full max-h-[85vh]" />
+                </div>
+                <div id="seo-info-container" class="md:w-1/3 p-4 flex flex-col space-y-4 overflow-y-auto border-t-2 md:border-t-0 md:border-l-2 border-slate-700"></div>
+                <button id="close-preview-btn" class="absolute top-2 right-2 bg-slate-900/50 text-white rounded-full p-2 hover:bg-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+                <button id="download-preview-btn" class="absolute bottom-4 left-4 flex items-center gap-2 bg-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    Unduh
+                </button>
+            </div>
+        </div>
+        
+        <div id="loader-overlay" class="hidden fixed inset-0 bg-slate-900/90 flex items-center justify-center z-50"></div>
+    </div>
 
     <script>
-        async function getDataFromGoogle() {
-            const resultElement = document.getElementById('result');
-            resultElement.textContent = 'Memuat data...'; // Menampilkan pesan loading
+        document.addEventListener('DOMContentLoaded', () => {
+            // === State Global & Elemen DOM ===
+            let imageBase64 = null;
+            let generatedImageUrl = '';
+            let aspectRatio = '1:1';
+            let seoData = {};
 
-            try {
-                // URL Vercel Anda yang telah diubah di sini:
-                const response = await fetch('https://google-api-proxy-server-sgzmfj4j0-waseh89s-projects.vercel.app/api/google-service', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    // Kirim informasi yang dibutuhkan server proxy untuk memanggil Google API
-                    body: JSON.stringify({
-                        endpoint: 'maps/api/geocode/json', // Contoh: Google Maps Geocoding API
-                        params: { address: 'Monumen Nasional, Jakarta' } // Parameter untuk Google API
-                    })
-                });
+            const dom = {
+                imageInput: document.getElementById('image-input'),
+                imagePreview: document.getElementById('image-preview'),
+                uploadPlaceholder: document.getElementById('upload-placeholder'),
+                generatePromptBtn: document.getElementById('generate-prompt-btn'),
+                resultsPlaceholder: document.getElementById('results-placeholder'),
+                resultsContent: document.getElementById('results-content'),
+                indonesianPrompt: document.getElementById('indonesian-prompt'),
+                englishPromptContainer: document.getElementById('english-prompt-container'),
+                englishPrompt: document.getElementById('english-prompt'),
+                translateBtn: document.getElementById('translate-btn'),
+                checkFixBtn: document.getElementById('check-fix-btn'),
+                generateImageIdBtn: document.getElementById('generate-image-id-btn'),
+                generateImageEnBtn: document.getElementById('generate-image-en-btn'),
+                copyBtn: document.getElementById('copy-btn'),
+                generatedImage: document.getElementById('generated-image'),
+                imageResultPlaceholder: document.getElementById('image-result-placeholder'),
+                previewModal: document.getElementById('preview-modal'),
+                previewImage: document.getElementById('preview-image'),
+                closePreviewBtn: document.getElementById('close-preview-btn'),
+                downloadPreviewBtn: document.getElementById('download-preview-btn'),
+                seoInfoContainer: document.getElementById('seo-info-container'),
+                loaderOverlay: document.getElementById('loader-overlay'),
+                checkSuccessText: document.getElementById('check-success-text'),
+                aspectRatioContainer: document.getElementById('aspect-ratio-container'),
+                findReplaceIdContainer: document.getElementById('find-replace-id-container'),
+                findReplaceEnContainer: document.getElementById('find-replace-en-container')
+            };
 
-                // Periksa apakah respons dari server proxy berhasil (status code 2xx)
-                if (!response.ok) {
-                    // Jika ada masalah dari server proxy (misal: 500 Internal Server Error)
-                    const errorText = await response.text(); // Ambil teks error dari respons
-                    throw new Error(`Kesalahan dari server proxy: ${response.status} - ${errorText}`);
+            // === Fungsi UI ===
+            const showLoader = (text) => {
+                dom.loaderOverlay.innerHTML = `<div class="flex flex-col items-center justify-center w-full max-w-xs p-4"><div class="relative w-full aspect-square border-2 border-cyan-400/20 bg-slate-900/50 p-4 futuristic-loader-border"><div class="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-cyan-400"></div><div class="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-cyan-400"></div><div class="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-cyan-400"></div><div class="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-cyan-400"></div><div class="absolute top-0 left-0 right-0 h-1 bg-cyan-300/50 shadow-[0_0_15px_rgba(0,255,255,0.7)] futuristic-loader-scan"></div><div class="flex items-center justify-center h-full"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-300 animate-pulse"><path d="m12 3-1.9 1.9-1.1-3-2 3-3-1.1-1.9 1.9-3 2 1.1 3-1.9 1.9 3 1.1 2 3 1.9-1.9 3-2-1.1-3 1.9-1.9-3-1.1Z"/></svg></div></div><p class="mt-6 text-cyan-300 font-mono text-lg tracking-widest futuristic-loader-flicker">${text}</p><div class="w-full h-1 bg-cyan-400/20 mt-2 overflow-hidden rounded"><div class="w-1/3 h-full bg-cyan-400 futuristic-loader-scan rounded"></div></div></div>`;
+                dom.loaderOverlay.classList.remove('hidden');
+            };
+            const hideLoader = () => dom.loaderOverlay.classList.add('hidden');
+            const showError = (message, isImageError = false) => {
+                const errorHtml = `<div class="m-auto text-center text-red-400 flex flex-col items-center"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><p class="font-semibold">Terjadi Kesalahan</p><p class="text-sm">${message}</p></div>`;
+                if(isImageError) {
+                    dom.imageResultPlaceholder.innerHTML = errorHtml;
+                    dom.imageResultPlaceholder.classList.remove('hidden');
+                    dom.generatedImage.classList.add('hidden');
+                } else {
+                    dom.resultsPlaceholder.innerHTML = errorHtml;
+                    dom.resultsPlaceholder.classList.remove('hidden');
+                    dom.resultsContent.classList.add('hidden');
                 }
+                hideLoader();
+            };
+            const setProcessingState = (processing) => {
+                document.querySelectorAll('button').forEach(button => button.disabled = processing);
+                if (!imageBase64) dom.generatePromptBtn.disabled = true;
+            };
 
-                const data = await response.json(); // Ambil data JSON dari respons
-                resultElement.textContent = JSON.stringify(data, null, 2); // Tampilkan data JSON yang diformat
+            // === Fungsi API ===
+            // Ganti URL ini dengan URL Replit Anda yang sebenarnya!
+            const PROXY_BASE_URL = 'https://1732b4db-3d1a-4cc9-9a1b-9f18040aab99-00-xwxakz13l6wn.pike.replit.dev'; // <--- URL PROXY REPLIT ANDA
 
-            } catch (error) {
-                console.error('Ada masalah saat mengambil data:', error);
-                resultElement.textContent = 'Gagal mengambil data. Cek console browser untuk detail: ' + error.message;
+            async function callApi(apiPath, payload) { // Perubahan di sini: hanya menerima apiPath dan payload
+                const response = await fetch(`${PROXY_BASE_URL}/api/google-service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiPath: apiPath, googlePayload: payload }) // Kirim apiPath dan payload ke proxy
+                });
+                if (!response.ok) {
+                    let errorBody = `HTTP error! status: ${response.status}`;
+                    try { const errorJson = await response.json(); errorBody = errorJson.error?.message || JSON.stringify(errorJson); } catch (e) {}
+                    throw new Error(errorBody);
+                }
+                return await response.json();
             }
-        }
+
+            // === Logika Aplikasi Inti ===
+            async function generatePrompt() {
+                if (!imageBase64) { showError("Silakan unggah gambar utama terlebih dahulu."); return; }
+                showLoader('Menganalisis...');
+                setProcessingState(true);
+                dom.resultsPlaceholder.classList.add('hidden');
+                dom.resultsContent.classList.add('hidden');
+                try {
+                    const userPrompt = `Anda adalah seorang fotografer profesional dan pengarah seni (art director). Analisis gambar yang diberikan dengan sangat detail. Analisis Anda harus mengikuti struktur ini dengan tepat:
+
+1.  **Komposisi Fotografi (Langkah Wajib Pertama):**
+    * **Jenis & Jarak Pengambilan Gambar:** Analisis dan deskripsikan jarak pengambilan gambar ke subjek secara alami (contoh: 'Pengambilan gambar sangat dekat (Extreme Close-up) yang hanya menunjukkan mata', 'Pengambilan gambar medium (Medium Shot) dari pinggang ke atas', 'Pengambilan gambar seluruh badan (Full Body Shot) yang menangkap seluruh sosok').
+    * **Orientasi & Pose Subjek:** Analisis dan deskripsikan pose dan orientasi subjek secara alami (contoh: 'Subjek terlihat dari sudut tiga perempat, melihat ke arah bahu', 'Tampilan profil subjek yang melihat ke kiri', 'Subjek menghadap kamera secara langsung dengan postur percaya diri').
+    * **Sudut Kamera:** Analisis dan deskripsikan posisi vertikal kamera secara alami (contoh: 'Diambil dari sudut rendah (low angle) untuk membuat subjek terlihat megah', 'Pengambilan gambar dari sudut tinggi (high-angle shot) yang melihat ke bawah pada pemandangan').
+
+2.  **Deskripsi Detail:**
+    * **Detail Karakter:** Jika ada karakter, deskripsikan rambut, wajah, ekspresi, fisik, serta deskripsi dari ujung kepala hingga ujung kaki untuk pakaian dan aksesorisnya.
+    * **Elemen Pemandangan:** Deskripsikan latar belakang, pencahayaan, palet warna, suasana (mood), dan gaya seni secara keseluruhan.
+
+Gabungkan semua poin ini menjadi satu prompt yang padu dan sangat artistik dalam **Bahasa Indonesia**. Kembalikan HANYA prompt Bahasa Indonesia tersebut sebagai teks biasa tanpa tambahan apapun.`;
+
+                    // Panggil API melalui PROXY
+                    const apiPath = `v1beta/models/gemini-2.0-flash:generateContent`;
+                    const payload = { contents: [{ role: "user", parts: [{ text: userPrompt }, { inlineData: { mimeType: "image/jpeg", data: imageBase64 } }] }] };
+                    const result = await callApi(apiPath, payload);
+                    
+                    if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                        dom.indonesianPrompt.value = result.candidates[0].content.parts[0].text;
+                        dom.resultsPlaceholder.classList.add('hidden');
+                        dom.resultsContent.classList.remove('hidden');
+                        dom.englishPromptContainer.classList.add('hidden');
+                        generatedImageUrl = '';
+                        dom.generatedImage.src = '';
+                        dom.generatedImage.classList.add('hidden');
+                        dom.imageResultPlaceholder.classList.remove('hidden');
+                        dom.imageResultPlaceholder.innerHTML = `<p>Gambar yang dihasilkan akan muncul di sini.</p>`;
+                    } else { throw new Error("Respons dari AI tidak valid."); }
+                } catch (err) { showError(err.message); } finally { setProcessingState(false); hideLoader(); }
+            }
+            
+            async function getEnglishPrompt(indonesianText) {
+                if (!indonesianText) { showError("Prompt Bahasa Indonesia kosong.", true); return null; }
+                const translatePrompt = `Translate the following Indonesian text to English. Return only the translated text, nothing else:\n\n${indonesianText}`;
+                
+                // Panggil API melalui PROXY
+                const apiPath = `v1beta/models/gemini-2.0-flash:generateContent`;
+                const payload = { contents: [{ role: "user", parts: [{ text: translatePrompt }] }] };
+                const result = await callApi(apiPath, payload);
+
+                const englishText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!englishText) throw new Error("Hasil terjemahan kosong.");
+                return englishText.trim();
+            }
+
+            async function generateImage(prompt, isIndonesian = false) {
+                if (!prompt) { showError("Prompt tidak boleh kosong.", true); return; }
+                showLoader('Membuat Gambar...');
+                setProcessingState(true);
+                generatedImageUrl = '';
+                dom.generatedImage.src = '';
+                dom.generatedImage.classList.add('hidden');
+                dom.imageResultPlaceholder.classList.remove('hidden');
+                dom.imageResultPlaceholder.innerHTML = `<div class="m-auto"><p>Membuat gambar...</p></div>`;
+
+                try {
+                    let finalEnglishPrompt = prompt;
+                    if (isIndonesian) {
+                        finalEnglishPrompt = await getEnglishPrompt(prompt);
+                    }
+                    if (!finalEnglishPrompt) return;
+
+                    // Panggil API melalui PROXY
+                    const apiPath = `v1beta/models/imagen-3.0-generate-002:predict`;
+                    const imagePayload = { instances: [{ prompt: finalEnglishPrompt }], parameters: { sampleCount: 1, aspectRatio: aspectRatio } };
+                    const result = await callApi(apiPath, imagePayload);
+
+                    if (result.predictions?.[0]?.bytesBase64Encoded) {
+                        generatedImageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                        dom.generatedImage.src = generatedImageUrl;
+                        dom.generatedImage.classList.remove('hidden');
+                        dom.imageResultPlaceholder.classList.add('hidden');
+                        generateSeoData(finalEnglishPrompt); // Generate SEO after image is ready
+                    } else { throw new Error("Gagal menerima data gambar dari AI. Prompt mungkin terlalu sensitif."); }
+                } catch (err) { 
+                    showError(err.message, true); 
+                } finally { setProcessingState(false); hideLoader(); }
+            }
+            
+            async function checkAndFixPrompt() {
+                if (!dom.indonesianPrompt.value) { showError("Prompt kosong, tidak ada yang bisa diperiksa.", true); return; }
+                showLoader('Memeriksa Prompt...');
+                setProcessingState(true);
+                dom.checkSuccessText.textContent = '';
+                try {
+                    const checkerPrompt = `You are a content safety expert for an AI image generator. The following Indonesian prompt will be used to create an image. Review it for any words or phrases that might be sensitive, unsafe, or violate content policies (e.g., related to violence, hate speech, explicit content, etc.). Your task is to rewrite the prompt to be completely safe for generation, while preserving the core artistic intent as much as possible. Replace potentially problematic words with safer synonyms or rephrase sentences subtly. Return ONLY the revised, safe-to-use Indonesian prompt.\n\nOriginal prompt: "${dom.indonesianPrompt.value}"`;
+                    
+                    // Panggil API melalui PROXY
+                    const apiPath = `v1beta/models/gemini-2.0-flash:generateContent`;
+                    const payload = { contents: [{ role: "user", parts: [{ text: checkerPrompt }] }] };
+                    const result = await callApi(apiPath, payload);
+
+                    const safePrompt = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (safePrompt) {
+                        dom.indonesianPrompt.value = safePrompt.trim();
+                        dom.checkSuccessText.textContent = 'Prompt diperiksa & diperbaiki!';
+                        setTimeout(() => dom.checkSuccessText.textContent = '', 3000);
+                    } else { throw new Error("Gagal mendapatkan versi aman dari prompt."); }
+                } catch (err) { showError(err.message, true); } finally { setProcessingState(false); hideLoader(); }
+            }
+            
+            async function generateSeoData(prompt) {
+                seoData = {};
+                try {
+                    const seoPrompt = `You are a microstock SEO expert. Based on the following image prompt, generate metadata for a microstock website. Image Prompt: "${prompt}" Your task is to create: 1. **Title:** A concise, descriptive, and keyword-rich title in English (max 15 words). 2. **Description:** A detailed description in English explaining the image's concept and potential uses (2-3 sentences). 3. **Keywords:** A comma-separated list of 25-40 highly relevant keywords/hashtags in English. Return the result as a single, valid JSON object with the keys "title", "description", and "keywords".`;
+                    
+                    // Panggil API melalui PROXY
+                    const apiPath = `v1beta/models/gemini-2.0-flash:generateContent`;
+                    const payload = { contents: [{ role: "user", parts: [{ text: seoPrompt }] }], generationConfig: { responseMimeType: "application/json" }};
+                    const result = await callApi(apiPath, payload);
+                    
+                    seoData = JSON.parse(result.candidates[0].content.parts[0].text);
+                } catch (err) { console.error("SEO Generation Error:", err); }
+            }
+            
+            function renderSeoData() {
+                dom.seoInfoContainer.innerHTML = `<h3 class="text-xl font-bold text-white">Metadata Microstock</h3>`;
+                if (!seoData.title) {
+                    dom.seoInfoContainer.innerHTML += `<p class="text-slate-400 text-sm">Membuat metadata SEO...</p>`;
+                    return;
+                }
+                const seoFields = { Judul: seoData.title, Deskripsi: seoData.description, 'Kata Kunci': seoData.keywords };
+                Object.entries(seoFields).forEach(([title, content]) => {
+                    if (content) {
+                        dom.seoInfoContainer.innerHTML += `<div class="mt-3"><label class="text-sm font-semibold text-cyan-300 mb-1 block">${title}</label><div class="relative"><p class="text-xs text-slate-300 bg-slate-900/50 p-2 rounded-md border border-slate-700 pr-8">${content}</p><button data-copy="${content}" class="copy-seo-btn absolute top-2 right-2 text-slate-400 hover:text-white" title="Salin ${title}"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button></div></div>`;
+                    }
+                });
+                document.querySelectorAll('.copy-seo-btn').forEach(btn => btn.addEventListener('click', (e) => copyToClipboard(e.currentTarget.dataset.copy)));
+            }
+
+            // === Render Komponen Dinamis ===
+            const renderFindReplace = (container, lang, textarea) => {
+                container.innerHTML = `<div class="mt-2 p-2 border border-slate-700 rounded-md"><div class="grid grid-cols-2 gap-2"><input type="text" id="find-${lang}" placeholder="Cari teks..." class="w-full bg-slate-800 p-1 rounded-md text-xs placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"/><input type="text" id="replace-${lang}" placeholder="Ganti dengan..." class="w-full bg-slate-800 p-1 rounded-md text-xs placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"/></div><button id="replace-btn-${lang}" class="w-full mt-2 text-xs bg-slate-600 hover:bg-slate-500 rounded-md p-1 font-semibold">Ganti Semua</button></div>`;
+                document.getElementById(`replace-btn-${lang}`).addEventListener('click', () => {
+                    const find = document.getElementById(`find-${lang}`).value;
+                    const replace = document.getElementById(`replace-${lang}`).value;
+                    if (find) textarea.value = textarea.value.replaceAll(find, replace);
+                });
+            };
+
+            const renderAspectRatioPicker = () => {
+                const options = {'1:1': 'Persegi', '9:16': 'Potrait', '16:9': 'Lanskap'};
+                dom.aspectRatioContainer.innerHTML = `<label class="text-sm font-semibold text-slate-400 mb-2 block">Rasio Aspek</label><div class="flex gap-2">` + 
+                    Object.entries(options).map(([key, label]) => 
+                        `<button data-ratio="${key}" class="ratio-btn flex-1 rounded-md py-2 px-1 text-sm font-semibold transition-all ${aspectRatio === key ? 'bg-cyan-500 text-white shadow-md' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}">${label}</button>`
+                    ).join('') + `</div>`;
+                
+                document.querySelectorAll('.ratio-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        aspectRatio = e.target.dataset.ratio;
+                        document.querySelectorAll('.ratio-btn').forEach(b => {
+                            b.classList.remove('bg-cyan-500', 'text-white', 'shadow-md');
+                            b.classList.add('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+                        });
+                        e.target.classList.add('bg-cyan-500', 'text-white', 'shadow-md');
+                        e.target.classList.remove('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+                    });
+                });
+            };
+
+            const copyToClipboard = (text) => {
+                if(!text) return;
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            };
+
+            // === Inisialisasi & Event Listeners ===
+            renderFindReplace(dom.findReplaceIdContainer, 'id', dom.indonesianPrompt);
+            renderFindReplace(dom.findReplaceEnContainer, 'en', dom.englishPrompt);
+            renderAspectRatioPicker();
+            
+            dom.imageInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    dom.imagePreview.src = e.target.result;
+                    dom.imagePreview.classList.remove('hidden');
+                    dom.uploadPlaceholder.classList.add('hidden');
+                    imageBase64 = e.target.result.split(',')[1];
+                    dom.generatePromptBtn.disabled = false;
+                    dom.generatePromptBtn.classList.remove('bg-gray-600');
+                    dom.generatePromptBtn.classList.add('bg-gradient-to-r', 'from-cyan-500', 'to-blue-500');
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            dom.generatePromptBtn.addEventListener('click', generatePrompt);
+            dom.translateBtn.addEventListener('click', async () => {
+                showLoader('Menerjemahkan...');
+                setProcessingState(true);
+                try {
+                    const englishText = await getEnglishPrompt(dom.indonesianPrompt.value);
+                    dom.englishPrompt.value = englishText;
+                    dom.englishPromptContainer.classList.remove('hidden');
+                } catch(err) { showError(err.message, true); }
+                finally { setProcessingState(false); hideLoader(); }
+            });
+            
+            dom.checkFixBtn.addEventListener('click', checkAndFixPrompt);
+            dom.generateImageIdBtn.addEventListener('click', () => generateImage(dom.indonesianPrompt.value, true));
+            dom.generateImageEnBtn.addEventListener('click', () => generateImage(dom.englishPrompt.value, false));
+            dom.copyBtn.addEventListener('click', () => copyToClipboard(dom.englishPrompt.value));
+            
+            dom.generatedImage.addEventListener('click', () => {
+                if(generatedImageUrl) {
+                    dom.previewImage.src = generatedImageUrl;
+                    renderSeoData();
+                    dom.previewModal.classList.remove('hidden');
+                }
+            });
+            dom.closePreviewBtn.addEventListener('click', () => dom.previewModal.classList.add('hidden'));
+            dom.downloadPreviewBtn.addEventListener('click', () => downloadImage(generatedImageUrl, 'hasil-ai.png'));
+            dom.previewModal.addEventListener('click', (e) => { if(e.target === dom.previewModal) dom.previewModal.classList.add('hidden'); });
+
+        });
     </script>
 </body>
 </html>
