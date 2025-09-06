@@ -1,0 +1,18 @@
+:root { --main-bg: #2d3748; --secondary-bg: #4a5568; --text-color: #e2e8f0; --accent-color: #4299e1; }
+body, html { margin: 0; padding: 0; font-family: sans-serif; background-color: var(--main-bg); color: var(--text-color); }
+.container { display: flex; height: 100vh; padding: 15px; box-sizing: border-box; gap: 15px; }
+.input-area, .output-area { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+textarea, select { width: 100%; resize: none; border-radius: 6px; border: 1px solid var(--secondary-bg); background-color: #1a202c; color: var(--text-color); padding: 10px; font-size: 14px; box-sizing: border-box; }
+textarea#prompt-input { flex-grow: 1; }
+button { padding: 12px; font-size: 16px; font-weight: bold; color: white; background-color: var(--accent-color); border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s; }
+button:hover { background-color: #2b6cb0; }
+button:disabled { background-color: var(--secondary-bg); cursor: not-allowed; }
+#image-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; background-color: #1a202c; border-radius: 6px; overflow: hidden; }
+#result-image { max-width: 100%; max-height: 100%; object-fit: contain; }
+.loader { border: 8px solid #f3f3f3; border-top: 8px solid var(--accent-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 2s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.ratio-selector { display: flex; justify-content: space-around; background-color: #1a202c; border-radius: 6px; padding: 5px; }
+.ratio-selector input[type="radio"] { display: none; }
+.ratio-selector label { flex: 1; text-align: center; padding: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
+.ratio-selector input[type="radio"]:checked + label { background-color: var(--accent-color); font-weight: bold; }
+.ratio-selector label:hover { background-color: var(--secondary-bg); }

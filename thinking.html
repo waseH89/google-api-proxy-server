@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Processing</title>
+    <!-- 1. Memuat script Lottie Player -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        body {
+            /* Latar belakang transparan */
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #lottie-animation {
+            width: 60px; 
+            height: 60px;
+        }
+        p {
+            color: #999999;
+            font-family: sans-serif;
+            font-size: 12px;
+            margin-top: -5px;
+                   }
+    </style>
+</head>
+<body>
+    <div id="lottie-animation"></div>
+    <p>Memproses...</p>
+
+    <script>
+        lottie.loadAnimation({
+            container: document.getElementById('lottie-animation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            // Ganti dengan nama file .json Anda
+            path: './loading-animation.json' 
+        });
+    </script>
+</body>
+</html>

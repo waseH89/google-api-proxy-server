@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"><title>Image Generator</title><link rel="stylesheet" href="image-generator.css">
+</head>
+<body>
+    <div class="container">
+        <div class="input-area">
+            <label for="prompt-input">1. Masukkan deskripsi gambar:</label>
+            <textarea id="prompt-input" placeholder="contoh: seekor kucing astronot di bulan"></textarea>
+            
+            <label for="style-select">2. Pilih Gaya Gambar:</label>
+            <select id="style-select">
+                <option value="">Default</option>
+                <option value="Realistic">Realistic</option>
+                <option value="Photorealistic">Photorealistic</option>
+                <option value="Anime">Anime</option>
+                <option value="Cartoon">Cartoon</option>
+                <option value="Studio Ghibli">Studio Ghibli</option>
+                <option value="Disney">Disney</option>
+                <option value="Pixel Art">Pixel Art</option>
+                <option value="2D">2D</option>
+                <option value="3D">3D</option>
+                <option value="Black and white">Black and white</option>
+                <option value="Cinematic">Cinematic</option>
+                <option value="Claymation">Claymation</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Line art">Line art</option>
+                <option value="Stopmotion">Stopmotion</option>
+                <option value="Vector art">Vector art</option>
+                <option value="Cyberpunk">Cyberpunk</option>
+                <option value="Steampunk">Steampunk</option>
+                <option value="Watercolor Painting">Watercolor Painting</option>
+                <option value="Oil Painting">Oil Painting</option>
+            </select>
+
+            <label for="negative-prompt-input">3. Prompt Negatif (opsional):</label>
+            <textarea id="negative-prompt-input" rows="3" placeholder="contoh: tulisan, manusia, warna merah"></textarea>
+
+            <label>4. Pilih Rasio Aspek:</label>
+            <div class="ratio-selector">
+                <input type="radio" id="square" name="aspect_ratio" value="1:1" checked><label for="square">Persegi</label>
+                <input type="radio" id="portrait" name="aspect_ratio" value="9:16"><label for="portrait">Potret</label>
+                <input type="radio" id="landscape" name="aspect_ratio" value="16:9"><label for="landscape">Lanskap</label>
+            </div>
+
+            <button id="generate-button">5. Generate Gambar</button>
+        </div>
+        <div class="output-area">
+            <div id="image-container">
+                <div class="loader" id="loader" style="display: none;"></div>
+                <img id="result-image" style="display: none;" />
+            </div>
+            <button id="download-button" disabled>Unduh Gambar</button>
+        </div>
+    </div>
+    <script src="./image-generator.js"></script>
+</body>
+</html>

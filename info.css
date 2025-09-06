@@ -1,0 +1,59 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: rgba(0, 0, 0, 0); /* Latar belakang body transparan */
+    border-radius: 8px;
+    overflow: hidden; /* Mencegah scrollbar */
+}
+.container {
+    width: 100vw;
+    height: 100vh;
+    background-color: #2a2a4a; /* Warna latar belakang konten */
+    color: #e0e0ff;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    border-radius: 8px;
+    overflow: hidden;
+}
+#info-image {
+    width: 100%;
+    height: 300px; /* Atur tinggi gambar */
+    object-fit: cover;
+}
+.content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+h2 {
+    font-size: 1.2rem;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+p {
+    font-size: 0.9rem;
+    color: #a0a0c0;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+a {
+    background-color: #4a4afc;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    align-self: center;
+}
+a:hover {
+    background-color: #6a6aff;
+}

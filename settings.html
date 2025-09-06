@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pengaturan</title>
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <h2>Pengaturan</h2>
+            <ul>
+                <li class="active" data-target="account-panel"><a href="#">Akun</a></li>
+                <li data-target="hotkey-panel"><a href="#">Hotkey</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logout-button">Logout</button>
+            </div>
+        </nav>
+        <main class="content">
+            <div id="account-panel" class="content-panel active">
+                <h1>Dasbor Akun</h1>
+                <div class="account-grid">
+                    <div class="info-box">
+                        <label>Email</label>
+                        <p id="account-email">Memuat...</p>
+                    </div>
+                    <div class="info-box">
+                        <label>Paket Langganan</label>
+                        <p id="account-tier">Memuat...</p>
+                    </div>
+                    <div class="info-box">
+                        <label>Sisa Kuota Gambar</label>
+                        <p id="image-credits">Memuat...</p>
+                    </div>
+                    <div class="info-box">
+                        <label>Sisa Kuota Teks</label>
+                        <p id="text-credits">Memuat...</p>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Langganan Aktif Hingga</label>
+                    <p class="account-info" id="token-expiry">Memuat...</p>
+                </div>
+            </div>
+
+            <div id="hotkey-panel" class="content-panel">
+                <h1>Pengaturan Hotkey</h1>
+                <p>Klik di dalam kotak lalu tekan kombinasi tombol yang Anda inginkan.</p>
+                <div class="setting-item">
+                    <label for="image-hotkey">Buka Jendela Image Generator</label>
+                    <input type="text" id="image-hotkey" readonly>
+                </div>
+                <div class="setting-item">
+                    <label for="process-hotkey">Proses Teks AI dari Clipboard</label>
+                    <input type="text" id="process-hotkey" readonly>
+                </div>
+                <div class="setting-item">
+                    <label for="text-hotkey">Salin Hasil Teks AI</label>
+                    <input type="text" id="text-hotkey" readonly>
+                </div>
+                <div class="footer">
+                    <span id="status-message"></span>
+                    <button id="save-button">Simpan Hotkey</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="./settings.js"></script>
+</body>
+</html>

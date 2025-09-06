@@ -1,0 +1,21 @@
+const contextInput = document.getElementById('context-input');
+const resultOutput = document.getElementById('result-output');
+const processButton = document.getElementById('process-button');
+
+processButton.addEventListener('click', async () => {
+    const context = contextInput.value;
+    if (!context.trim()) {
+        resultOutput.value = "Error: Kotak input tidak boleh kosong.";
+        return;
+    }
+
+    processButton.disabled = true;
+    processButton.textContent = 'AI sedang memproses...';
+    resultOutput.value = '';
+
+    const result = await window.api.processExcel(context);
+    resultOutput.value = result;
+
+    processButton.disabled = false;
+    processButton.textContent = 'Langkah 2: Proses dengan AI';
+});

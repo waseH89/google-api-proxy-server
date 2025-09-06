@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pilih Paket Langganan</title>
+    <link rel="stylesheet" href="subscription.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 id="main-title">Masa uji coba atau langganan Anda telah berakhir.</h2>
+            <p id="main-subtitle">Pilih paket langganan bulanan untuk melanjutkan.</p>
+        </div>
+        
+        <div id="subscription-section" style="display: none;">
+            <div class="plan-wrapper">
+                <div class="plan-card">
+                    <div class="plan-details">
+                        <h4>Paket Pro 20K</h4>
+                        <p>(Termasuk 10 Kuota Gambar & Teks Tak Terbatas)</p>
+                    </div>
+                    <div class="plan-price">Rp 20.000 / bulan</div>
+                    <button data-product-id="PRO_20K" data-price="20000" class="plan-button">Pilih Paket</button>
+                </div>
+                <div class="plan-card">
+                    <div class="plan-details">
+                        <h4>Paket Pro 50K</h4>
+                        <p>(Termasuk 30 Kuota Gambar & Teks Tak Terbatas)</p>
+                    </div>
+                    <div class="plan-price">Rp 50.000 / bulan</div>
+                    <button data-product-id="PRO_50K" data-price="50000" class="plan-button">Pilih Paket</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="top-up-section" style="display: none;">
+            <div class="plan-wrapper">
+                 <div class="plan-card">
+                    <div class="plan-details">
+                        <h4>+10 Gambar</h4>
+                    </div>
+                    <div class="plan-price">Rp 10.000</div>
+                    <button id="buy-img-10" data-product-id="IMG_10" data-price="10000" class="plan-button">Beli Kuota</button>
+                </div>
+                <div class="plan-card">
+                    <div class="plan-details">
+                        <h4>+30 Gambar</h4>
+                    </div>
+                    <div class="plan-price">Rp 25.000</div>
+                    <button id="buy-img-30" data-product-id="IMG_30" data-price="25000" class="plan-button">Beli Kuota</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="#" id="close-link">Tutup untuk sekarang</a>
+        </div>
+    </div>
+    <script src="./subscription.js"></script>
+</body>
+</html>
